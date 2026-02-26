@@ -19,9 +19,36 @@ body {
 
 h1 {
   text-align: center;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   font-size: 1.8rem;
   color: #1a1a2e;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid #e0e0e0;
+}
+
+.tabs button {
+  flex: 1;
+  background: #fafafa;
+  color: #555;
+  border-radius: 0;
+  padding: 10px;
+}
+
+.tabs button:hover {
+  background: #f0f2ff;
+  color: #4f6ef7;
+}
+
+.tabs button.active {
+  background: #4f6ef7;
+  color: #fff;
 }
 
 .input-row {
