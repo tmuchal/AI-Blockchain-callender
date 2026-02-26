@@ -1,0 +1,137 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #f0f2f5;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.app {
+  max-width: 540px;
+  margin: 60px auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  text-align: center;
+  margin: 0 0 24px;
+  font-size: 1.8rem;
+  color: #1a1a2e;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.input-row input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-row input:focus {
+  border-color: #4f6ef7;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: #4f6ef7;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #3a57d4;
+}
+
+button.delete {
+  background: #ff5c5c;
+}
+
+button.delete:hover {
+  background: #e03e3e;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.filters button {
+  background: #eee;
+  color: #555;
+}
+
+.filters button:hover {
+  background: #ddd;
+}
+
+.filters button.active {
+  background: #4f6ef7;
+  color: #fff;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.todo-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.todo-list li.done span {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.todo-list li span {
+  flex: 1;
+  font-size: 1rem;
+}
+
+.todo-list li.empty {
+  justify-content: center;
+  color: #bbb;
+  font-size: 0.95rem;
+  border-bottom: none;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1.5px solid #4f6ef7;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.count {
+  text-align: right;
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 16px;
+  margin-bottom: 0;
+}
