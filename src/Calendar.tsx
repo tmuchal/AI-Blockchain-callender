@@ -7,12 +7,6 @@ const WEEK_DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
   'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
-const EVENT_EMOJI: Record<string, string> = {
-  'token2049-dubai-2026': '🏙️',
-  'superai-2026': '🤖',
-  'token2049-singapore-2026': '🦁',
-};
-
 function toDateStr(year: number, month: number, day: number) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
@@ -129,7 +123,7 @@ export default function Calendar() {
                   >
                     {isEventStart(e, dateStr) && (
                       <span className="event-bar-label">
-                        {EVENT_EMOJI[e.id]} {e.name.split(' ').pop()}
+                        {e.emoji} {e.name.split(' ').pop()}
                       </span>
                     )}
                   </div>
@@ -160,7 +154,7 @@ export default function Calendar() {
                 onMouseEnter={() => setHoveredEvent(e.id)}
                 onMouseLeave={() => setHoveredEvent(null)}
               >
-                <div className="card-emoji">{EVENT_EMOJI[e.id]}</div>
+                <div className="card-emoji">{e.emoji}</div>
                 <div className="card-info">
                   <div className="card-name">{e.name}</div>
                   <div className="card-location">📍 {e.location}</div>
