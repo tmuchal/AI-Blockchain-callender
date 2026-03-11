@@ -178,6 +178,14 @@ function EventModal({ event, onClose }: { event: BlockchainEvent; onClose: () =>
               <span>{event.startDate} ~ {event.endDate}</span>
             </div>
             <div className="modal-meta-row">
+              <span className="modal-meta-icon">👥</span>
+              <span>{event.attendees}</span>
+            </div>
+            <div className="modal-meta-row">
+              <span className="modal-meta-icon">🎟</span>
+              <span>{event.ticketPrice}</span>
+            </div>
+            <div className="modal-meta-row">
               <span className="modal-meta-icon">⏱</span>
               <span style={{ color: days < 0 ? '#aaa' : days === 0 ? '#f7931a' : '#4f6ef7', fontWeight: 700 }}>
                 {statusText}
