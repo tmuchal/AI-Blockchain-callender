@@ -38,14 +38,14 @@ export default function App() {
 
   return (
     <div className="app">
-      <h1>Todo App</h1>
+      <h1>🌏 Asia AI · Blockchain Calendar</h1>
 
       <div className="tabs">
         <button className={tab === 'todo' ? 'active' : ''} onClick={() => setTab('todo')}>
           할 일
         </button>
         <button className={tab === 'calendar' ? 'active' : ''} onClick={() => setTab('calendar')}>
-          블록체인 행사
+          🗓 컨퍼런스 캘린더
         </button>
       </div>
 
