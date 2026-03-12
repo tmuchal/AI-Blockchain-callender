@@ -1,53 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { EVENTS } from './events';
 import type { BlockchainEvent } from './events';
 import './Calendar.css';
-
-// ── Pixel T-Rex ───────────────────────────────────────────────────────────────
-const PX = 5;
-const FRAMES: number[][][] = [
-  [[0,0,0,0,1,1,1,0,0,0,0,0],[0,0,0,1,1,1,1,1,0,0,0,0],[0,0,0,1,1,2,1,1,0,0,0,0],[0,0,1,1,1,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,1,1,1,0,0],[0,0,1,1,1,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,0,0,0,0],[0,0,0,0,1,1,0,0,0,0,0,0],[0,0,0,1,1,0,1,1,0,0,0,0],[0,0,0,1,0,0,0,1,0,0,0,0],[0,0,1,1,0,0,1,1,0,0,0,0]],
-  [[0,0,0,0,1,1,1,0,0,0,0,0],[0,0,0,1,1,1,1,1,0,0,0,0],[0,0,0,1,1,2,1,1,0,0,0,0],[0,0,1,1,1,1,1,1,1,1,0,0],[0,1,1,1,1,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,1,1,1,0,0],[0,0,1,1,1,1,1,1,1,0,0,0],[0,0,1,1,1,1,1,1,0,0,0,0],[0,0,0,0,1,1,0,0,0,0,0,0],[0,0,0,0,1,1,1,0,0,0,0,0],[0,0,0,0,0,1,1,1,0,0,0,0],[0,0,0,0,0,0,1,1,0,0,0,0]],
-];
-const TW = FRAMES[0][0].length * PX, TH = FRAMES[0].length * PX;
-
-function TRex({ areaRef }: { areaRef: React.RefObject<HTMLDivElement | null> }) {
-  const el = useRef<HTMLDivElement>(null);
-  const [frame, setFrame] = useState(0);
-  useEffect(() => {
-    let x = 60, y = 60, vx = 2.4, vy = 1.6, f = 0, tick = 0, raf: number;
-    function loop() {
-      const area = areaRef.current;
-      if (area) {
-        const W = area.clientWidth, H = area.clientHeight;
-        x += vx; y += vy;
-        if (x > W - TW) { x = W - TW; vx = -Math.abs(vx); }
-        if (x < 0) { x = 0; vx = Math.abs(vx); }
-        if (y > H - TH) { y = H - TH; vy = -Math.abs(vy); }
-        if (y < 0) { y = 0; vy = Math.abs(vy); }
-        tick++;
-        if (tick % 8 === 0) { f = 1 - f; setFrame(f); }
-        if (el.current) {
-          el.current.style.left = x + 'px';
-          el.current.style.top = y + 'px';
-          el.current.style.transform = vx < 0 ? 'scaleX(-1)' : '';
-        }
-      }
-      raf = requestAnimationFrame(loop);
-    }
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [areaRef]);
-  return (
-    <div ref={el} style={{ position: 'absolute', pointerEvents: 'none', zIndex: 20, left: 60, top: 60 }}>
-      <svg width={TW} height={TH} style={{ display: 'block', imageRendering: 'pixelated' }}>
-        {FRAMES[frame].flatMap((row, ry) => row.map((c, rx) =>
-          c ? <rect key={`${rx}-${ry}`} x={rx*PX} y={ry*PX} width={PX} height={PX} fill={c===2?'#fff':'#22c55e'} /> : null
-        ))}
-      </svg>
-    </div>
-  );
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const WEEK = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
@@ -106,7 +60,6 @@ export default function Calendar() {
   const [sel, setSel] = useState<BlockchainEvent | null>(null);
   const [hov, setHov] = useState<string | null>(null);
   const [view, setView] = useState<'calendar' | 'table'>('calendar');
-  const calRef = useRef<HTMLDivElement>(null);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDow = new Date(year, month, 1).getDay();
@@ -170,8 +123,7 @@ export default function Calendar() {
 
       {/* Calendar View */}
       {view === 'calendar' && (
-        <div className="cal-area" ref={calRef}>
-          <TRex areaRef={calRef} />
+        <div className="cal-area">
           <div className="week-row">{WEEK.map(w => <div key={w} className="wday">{w}</div>)}</div>
           <div className="grid">
             {cells.map((day, i) => {
