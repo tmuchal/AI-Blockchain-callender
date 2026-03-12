@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - claude/fix-repo-connection-D1ed0
 
 permissions:
   contents: read
