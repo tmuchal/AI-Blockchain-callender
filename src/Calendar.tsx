@@ -3,119 +3,91 @@ import { EVENTS } from './events';
 import type { BlockchainEvent } from './events';
 import './Calendar.css';
 
-const WEEK_DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-const MONTH_NAMES = [
-  '1월', '2월', '3월', '4월', '5월', '6월',
-  '7월', '8월', '9월', '10월', '11월', '12월',
-];
-
-// ── Pixel Art T-Rex ────────────────────────────────────────────────────────────
+const MONTH_NAMES = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const PX = 4;
-const TREX_FRAME1 = [
-  [0,0,0,0,0,0,1,1,0,0,0,0,0],
-  [0,0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,0,0,0,0,1,2,1,1,0,0,0,0],
-  [0,0,0,0,1,1,1,1,1,1,1,0,0],
-  [0,0,0,1,1,1,1,1,1,1,1,1,0],
-  [0,0,0,1,1,1,1,1,1,1,1,0,0],
-  [0,0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,0,0,1,1,0,0,0,0,0,0],
-  [0,0,0,0,1,1,0,1,0,0,0,0,0],
-  [0,0,0,0,1,0,0,1,0,0,0,0,0],
+const TREX_FRAMES = [
+  [ // frame 0
+    [0,0,0,0,0,0,1,1,0,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,2,1,1,0,0,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,0],
+    [0,0,0,1,1,1,1,1,1,1,1,0,0],
+    [0,0,0,0,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,0,1,1,0,0,0,0,0,0],
+    [0,0,0,0,1,1,0,1,0,0,0,0,0],
+    [0,0,0,0,1,0,0,1,0,0,0,0,0],
+  ],
+  [ // frame 1
+    [0,0,0,0,0,0,1,1,0,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,2,1,1,0,0,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,0],
+    [0,0,0,1,1,1,1,1,1,1,1,0,0],
+    [0,0,0,0,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,0,1,1,0,0,0,0,0,0],
+    [0,0,0,0,0,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,0,1,1,0,0,0,0,0],
+  ],
 ];
-const TREX_FRAME2 = [
-  [0,0,0,0,0,0,1,1,0,0,0,0,0],
-  [0,0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,0,0,0,0,1,2,1,1,0,0,0,0],
-  [0,0,0,0,1,1,1,1,1,1,1,0,0],
-  [0,0,0,1,1,1,1,1,1,1,1,1,0],
-  [0,0,0,1,1,1,1,1,1,1,1,0,0],
-  [0,0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,0,0,1,1,0,0,0,0,0,0],
-  [0,0,0,0,0,1,1,1,0,0,0,0,0],
-  [0,0,0,0,0,0,1,1,0,0,0,0,0],
-];
-const TREX_W = TREX_FRAME1[0].length * PX;
-const TREX_H = TREX_FRAME1.length * PX;
+const TREX_W = TREX_FRAMES[0][0].length * PX;
+const TREX_H = TREX_FRAMES[0].length * PX;
 
-function PixelTRex({ stageWidth }: { stageWidth: number }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+function PixelTRex({ containerRef }: { containerRef: React.RefObject<HTMLDivElement | null> }) {
+  const trexRef = useRef<HTMLDivElement>(null);
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
-    if (stageWidth <= TREX_W || !containerRef.current) return;
-    let posX = 0;
-    let direction = 1;
-    let framePhase = 0;
-    let tick = 0;
-    let raf: number;
+    let posX = 0, posY = 0, dx = 1.2, dy = 0.6, tick = 0, f = 0, raf: number;
 
     function animate() {
-      posX += direction * 0.9;
-      const maxX = stageWidth - TREX_W - 8;
-      if (posX >= maxX) { posX = maxX; direction = -1; }
-      if (posX <= 0) { posX = 0; direction = 1; }
+      const el = containerRef.current;
+      if (!el) { raf = requestAnimationFrame(animate); return; }
+      const W = el.offsetWidth, H = el.offsetHeight;
+      posX += dx; posY += dy;
+      if (posX >= W - TREX_W) { posX = W - TREX_W; dx = -Math.abs(dx); }
+      if (posX <= 0) { posX = 0; dx = Math.abs(dx); }
+      if (posY >= H - TREX_H) { posY = H - TREX_H; dy = -Math.abs(dy); }
+      if (posY <= 0) { posY = 0; dy = Math.abs(dy); }
       tick++;
-      if (tick % 12 === 0) {
-        framePhase = 1 - framePhase;
-        setFrame(framePhase);
-      }
-      if (containerRef.current) {
-        containerRef.current.style.left = `${posX}px`;
-        containerRef.current.style.transform = direction === -1 ? 'scaleX(-1)' : 'none';
+      if (tick % 10 === 0) { f = 1 - f; setFrame(f); }
+      if (trexRef.current) {
+        trexRef.current.style.left = `${posX}px`;
+        trexRef.current.style.top = `${posY}px`;
+        trexRef.current.style.transform = dx < 0 ? 'scaleX(-1)' : 'none';
       }
       raf = requestAnimationFrame(animate);
     }
-
     raf = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(raf);
-  }, [stageWidth]);
+  }, [containerRef]);
 
-  const pixels = frame === 0 ? TREX_FRAME1 : TREX_FRAME2;
+  const pixels = TREX_FRAMES[frame];
   return (
-    <div
-      ref={containerRef}
-      style={{ position: 'absolute', bottom: 8, left: 0, pointerEvents: 'none' }}
-    >
-      <svg
-        width={TREX_W}
-        height={TREX_H}
-        style={{ display: 'block', imageRendering: 'pixelated' }}
-      >
-        {pixels.flatMap((row, ry) =>
-          row.map((cell, rx) => {
-            if (!cell) return null;
-            return (
-              <rect
-                key={`${rx}-${ry}`}
-                x={rx * PX}
-                y={ry * PX}
-                width={PX}
-                height={PX}
-                fill={cell === 2 ? '#0c0c18' : '#4ade80'}
-              />
-            );
-          })
-        )}
+    <div ref={trexRef} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none', zIndex: 10 }}>
+      <svg width={TREX_W} height={TREX_H} style={{ display: 'block', imageRendering: 'pixelated' }}>
+        {pixels.flatMap((row, ry) => row.map((cell, rx) => {
+          if (!cell) return null;
+          return <rect key={`${rx}-${ry}`} x={rx*PX} y={ry*PX} width={PX} height={PX}
+            fill={cell === 2 ? '#0c0c18' : '#4ade80'} />;
+        }))}
       </svg>
     </div>
   );
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+function getDaysInMonth(year: number, month: number) {
+  return new Date(year, month + 1, 0).getDate();
+}
+
 function toDateStr(year: number, month: number, day: number) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-function getEventsForDate(dateStr: string): BlockchainEvent[] {
-  return EVENTS.filter(e => e.startDate <= dateStr && dateStr <= e.endDate);
-}
-
-function getDaysUntil(dateStr: string): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr);
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+function getDaysUntil(dateStr: string) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.ceil((new Date(dateStr).getTime() - today.getTime()) / 86400000);
 }
 
 function CountdownBadge({ dateStr }: { dateStr: string }) {
@@ -124,22 +96,17 @@ function CountdownBadge({ dateStr }: { dateStr: string }) {
     const t = setInterval(() => setDays(getDaysUntil(dateStr)), 60000);
     return () => clearInterval(t);
   }, [dateStr]);
-
   if (days < 0) return <span className="badge badge-past">종료</span>;
   if (days === 0) return <span className="badge badge-today">오늘! 🔥</span>;
   return <span className="badge badge-future">D-{days}</span>;
 }
 
-// ── Event Modal ────────────────────────────────────────────────────────────────
 function EventModal({ event, onClose }: { event: BlockchainEvent; onClose: () => void }) {
   useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose(); }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
+    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [onClose]);
 
   const days = getDaysUntil(event.startDate);
@@ -149,61 +116,38 @@ function EventModal({ event, onClose }: { event: BlockchainEvent; onClose: () =>
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>×</button>
-
         <div className="modal-hero" style={{ borderTopColor: event.color }}>
           <div className="modal-hero-bg" style={{ background: `${event.color}18` }} />
           <span className="modal-emoji">{event.emoji}</span>
           <div className="modal-tags">
             {event.tags.map(tag => (
-              <span
-                key={tag}
-                className="modal-tag"
-                style={{ background: `${event.color}22`, color: event.color, borderColor: `${event.color}44` }}
-              >
+              <span key={tag} className="modal-tag"
+                style={{ background: `${event.color}22`, color: event.color, borderColor: `${event.color}44` }}>
                 {tag}
               </span>
             ))}
           </div>
         </div>
-
         <div className="modal-body">
           <h2 className="modal-title">{event.name}</h2>
           <div className="modal-meta">
-            <div className="modal-meta-row">
-              <span className="modal-meta-icon">📍</span>
-              <span>{event.location}</span>
-            </div>
-            <div className="modal-meta-row">
-              <span className="modal-meta-icon">🗓</span>
-              <span>{event.startDate} ~ {event.endDate}</span>
-            </div>
-            <div className="modal-meta-row">
-              <span className="modal-meta-icon">👥</span>
-              <span>{event.attendees}</span>
-            </div>
-            <div className="modal-meta-row">
-              <span className="modal-meta-icon">🎟</span>
-              <span>{event.ticketPrice}</span>
-            </div>
-            <div className="modal-meta-row">
-              <span className="modal-meta-icon">⏱</span>
-              <span style={{ color: days < 0 ? '#aaa' : days === 0 ? '#f7931a' : '#4f6ef7', fontWeight: 700 }}>
-                {statusText}
-              </span>
-            </div>
+            {([
+              ['📍', event.location],
+              ['🗓', `${event.startDate} ~ ${event.endDate}`],
+              ['👥', event.attendees],
+              ['🎟', event.ticketPrice],
+              ['⏱', statusText],
+            ] as [string, string][]).map(([icon, text], i) => (
+              <div key={i} className="modal-meta-row">
+                <span className="modal-meta-icon">{icon}</span>
+                <span style={i === 4 ? { color: days < 0 ? '#aaa' : days === 0 ? '#f7931a' : '#4f6ef7', fontWeight: 700 } : {}}>{text}</span>
+              </div>
+            ))}
           </div>
-
           <p className="modal-desc">{event.description}</p>
-
           <div className="modal-actions">
             <CountdownBadge dateStr={event.startDate} />
-            <a
-              href={event.url}
-              target="_blank"
-              rel="noreferrer"
-              className="modal-btn"
-              style={{ background: event.color }}
-            >
+            <a href={event.url} target="_blank" rel="noreferrer" className="modal-btn" style={{ background: event.color }}>
               공식 사이트 →
             </a>
           </div>
@@ -213,138 +157,118 @@ function EventModal({ event, onClose }: { event: BlockchainEvent; onClose: () =>
   );
 }
 
-// ── Main Calendar ──────────────────────────────────────────────────────────────
 export default function Calendar() {
   const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
-  const [hoveredEvent, setHoveredEvent] = useState<string | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<BlockchainEvent | null>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const [stageWidth, setStageWidth] = useState(0);
-
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(entries => setStageWidth(entries[0].contentRect.width));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  function prevMonth() {
-    if (month === 0) { setYear(y => y - 1); setMonth(11); }
-    else setMonth(m => m - 1);
-  }
-  function nextMonth() {
-    if (month === 11) { setYear(y => y + 1); setMonth(0); }
-    else setMonth(m => m + 1);
-  }
-
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = new Date(year, month, 1).getDay();
   const todayStr = toDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+  const [year, setYear] = useState(today.getFullYear());
+  const [selectedEvent, setSelectedEvent] = useState<BlockchainEvent | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const calendarAreaRef = useRef<HTMLDivElement>(null);
 
-  const cells: (number | null)[] = [
-    ...Array(firstDay).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  while (cells.length % 7 !== 0) cells.push(null);
-
-  const upcomingEvents = EVENTS
-    .filter(e => e.endDate >= todayStr)
-    .sort((a, b) => a.startDate.localeCompare(b.startDate));
-
-  const monthHasEvents = EVENTS.some(e => {
-    const em = parseInt(e.startDate.slice(5, 7)) - 1;
-    const ey = parseInt(e.startDate.slice(0, 4));
-    return ey === year && em === month;
-  });
+  const DAY_W = 28;
 
   return (
-    <div className="calendar-wrap">
+    <div className="cal-root">
       {/* Header */}
-      <div className="cal-header">
-        <button className="nav-btn" onClick={prevMonth}>‹</button>
-        <div className="cal-title">
-          <span className="cal-year-label">{year}</span>
-          <span className="cal-month-label">{MONTH_NAMES[month]}</span>
-          {monthHasEvents && <span className="cal-event-dot" />}
+      <div className="cal-topbar">
+        <div className="cal-brand">
+          <span className="cal-brand-icon">🌏</span>
+          <div>
+            <div className="cal-brand-title">Asia AI · Blockchain Calendar</div>
+            <div className="cal-brand-sub">글로벌 AI · 블록체인 컨퍼런스 일정</div>
+          </div>
         </div>
-        <button className="nav-btn" onClick={nextMonth}>›</button>
+        <div className="cal-year-nav">
+          <button className="nav-btn" onClick={() => setYear(y => y - 1)}>‹</button>
+          <span className="cal-year">{year}</span>
+          <button className="nav-btn" onClick={() => setYear(y => y + 1)}>›</button>
+        </div>
       </div>
 
-      {/* Dino Stage */}
-      <div className="dino-stage" ref={stageRef}>
-        <div className="dino-stars">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="dino-star" style={{ left: `${10 + i * 12}%`, top: `${20 + (i % 3) * 20}%` }} />
-          ))}
-        </div>
-        <PixelTRex stageWidth={stageWidth} />
-        <div className="dino-ground" />
-      </div>
+      {/* Timeline with T-Rex overlay */}
+      <div className="timeline-wrap" ref={calendarAreaRef}>
+        <PixelTRex containerRef={calendarAreaRef} />
 
-      {/* Calendar Grid */}
-      <div className="cal-grid">
-        {WEEK_DAYS.map(d => (
-          <div key={d} className="cal-weekday">{d}</div>
-        ))}
-        {cells.map((day, i) => {
-          if (!day) return <div key={`e${i}`} className="cal-cell empty" />;
-          const dateStr = toDateStr(year, month, day);
-          const dayEvents = getEventsForDate(dateStr);
-          const isToday = dateStr === todayStr;
-          const isHovered = dayEvents.some(e => e.id === hoveredEvent);
+        <div className="timeline-scroll">
+          <div className="timeline-inner">
+            {Array.from({ length: 12 }, (_, mi) => {
+              const days = getDaysInMonth(year, mi);
+              const monthEvents = EVENTS.filter(e => {
+                const sy = parseInt(e.startDate.slice(0, 4)), sm = parseInt(e.startDate.slice(5, 7)) - 1;
+                const ey2 = parseInt(e.endDate.slice(0, 4)), em2 = parseInt(e.endDate.slice(5, 7)) - 1;
+                return (sy < year || (sy === year && sm <= mi)) && (ey2 > year || (ey2 === year && em2 >= mi));
+              });
 
-          return (
-            <div
-              key={dateStr}
-              className={[
-                'cal-cell',
-                isToday ? 'today' : '',
-                dayEvents.length > 0 ? 'has-event' : '',
-                isHovered ? 'highlight' : '',
-              ].filter(Boolean).join(' ')}
-            >
-              <span className="day-num">{day}</span>
-              <div className="day-events">
-                {dayEvents.map(e => (
-                  <div
-                    key={e.id}
-                    className={`event-bar${e.startDate === dateStr ? ' event-start' : ''}`}
-                    style={{ background: e.color }}
-                    onMouseEnter={() => setHoveredEvent(e.id)}
-                    onMouseLeave={() => setHoveredEvent(null)}
-                    onClick={() => setSelectedEvent(e)}
-                    title={e.name}
-                  >
-                    {e.startDate === dateStr && (
-                      <span className="event-bar-label">
-                        {e.emoji} {e.name.split(' ').slice(0, 2).join(' ')}
-                      </span>
-                    )}
+              return (
+                <div key={mi} className="tl-month-row">
+                  <div className="tl-month-label">
+                    <span className="tl-month-name">{MONTH_NAMES[mi]}</span>
+                    {monthEvents.length > 0 && <span className="tl-month-count">{monthEvents.length}</span>}
                   </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+
+                  <div className="tl-days-area" style={{ width: days * DAY_W }}>
+                    <div className="tl-day-headers">
+                      {Array.from({ length: days }, (_, d) => {
+                        const dateStr = toDateStr(year, mi, d + 1);
+                        const dow = new Date(year, mi, d + 1).getDay();
+                        const isToday = dateStr === todayStr;
+                        return (
+                          <div key={d}
+                            className={`tl-day-cell${isToday ? ' tl-today' : ''}${dow === 0 ? ' tl-sun' : dow === 6 ? ' tl-sat' : ''}`}
+                            style={{ width: DAY_W }}>
+                            {d + 1}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {today.getFullYear() === year && today.getMonth() === mi && (
+                      <div className="tl-today-line" style={{ left: (today.getDate() - 0.5) * DAY_W }} />
+                    )}
+
+                    <div className="tl-event-rows">
+                      {monthEvents.map(e => {
+                        const monthStart = toDateStr(year, mi, 1);
+                        const monthEnd = toDateStr(year, mi, days);
+                        const startStr = e.startDate < monthStart ? monthStart : e.startDate;
+                        const endStr = e.endDate > monthEnd ? monthEnd : e.endDate;
+                        const startDay = parseInt(startStr.slice(8)) - 1;
+                        const endDay = parseInt(endStr.slice(8)) - 1;
+                        const isStart = e.startDate >= monthStart;
+                        return (
+                          <div key={e.id}
+                            className={`tl-event-bar${hoveredId === e.id ? ' tl-event-hovered' : ''}`}
+                            style={{ left: startDay * DAY_W + 2, width: (endDay - startDay + 1) * DAY_W - 4, background: e.color }}
+                            onMouseEnter={() => setHoveredId(e.id)}
+                            onMouseLeave={() => setHoveredId(null)}
+                            onClick={() => setSelectedEvent(e)}
+                            title={e.name}
+                          >
+                            {isStart && <span className="tl-event-label">{e.emoji} {e.name}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Upcoming Events */}
+      {/* Upcoming events */}
       <div className="event-section">
         <div className="event-section-title">⚡ 다가오는 행사</div>
-        {upcomingEvents.length === 0 ? (
-          <p className="no-events">예정된 행사가 없습니다.</p>
-        ) : (
-          <div className="event-cards">
-            {upcomingEvents.map(e => (
-              <div
-                key={e.id}
-                className={`event-card${hoveredEvent === e.id ? ' card-hovered' : ''}`}
+        <div className="event-cards">
+          {EVENTS.filter(e => e.endDate >= todayStr)
+            .sort((a, b) => a.startDate.localeCompare(b.startDate))
+            .map(e => (
+              <div key={e.id}
+                className={`event-card${hoveredId === e.id ? ' card-hovered' : ''}`}
                 style={{ '--accent': e.color } as React.CSSProperties}
-                onMouseEnter={() => setHoveredEvent(e.id)}
-                onMouseLeave={() => setHoveredEvent(null)}
+                onMouseEnter={() => setHoveredId(e.id)}
+                onMouseLeave={() => setHoveredId(null)}
                 onClick={() => setSelectedEvent(e)}
               >
                 <div className="card-emoji">{e.emoji}</div>
@@ -354,23 +278,17 @@ export default function Calendar() {
                   <div className="card-dates">🗓 {e.startDate} ~ {e.endDate}</div>
                   <div className="card-tags">
                     {e.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="card-tag" style={{ background: `${e.color}18`, color: e.color }}>
-                        {tag}
-                      </span>
+                      <span key={tag} className="card-tag" style={{ background: `${e.color}18`, color: e.color }}>{tag}</span>
                     ))}
                   </div>
                 </div>
                 <CountdownBadge dateStr={e.startDate} />
               </div>
             ))}
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* Modal */}
-      {selectedEvent && (
-        <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-      )}
+      {selectedEvent && <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
     </div>
   );
 }
