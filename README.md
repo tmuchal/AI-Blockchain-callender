@@ -2,8 +2,6 @@
 
 글로벌 AI · 블록체인 컨퍼런스 일정 캘린더 — **[👉 라이브 서비스](https://tmuchal.github.io/AI-Blockchain-callender/)**
 
-[![preview](https://raw.githubusercontent.com/tmuchal/AI-Blockchain-callender/main/public/preview.png)](https://tmuchal.github.io/AI-Blockchain-callender/)
-
 ---
 
 ## 📅 2026 컨퍼런스 일정

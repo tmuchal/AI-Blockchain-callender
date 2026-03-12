@@ -2,15 +2,22 @@
 .root { max-width: 1000px; margin: 0 auto; padding: 14px 14px 50px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
 /* ── Topbar ── */
-.topbar { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg,#0f0f1a,#1a1a2e); border-radius: 10px; padding: 12px 18px; margin-bottom: 6px; border: 1px solid rgba(79,110,247,.2); }
-.brand { color: #fff; font-size: .85rem; display: flex; align-items: center; gap: 8px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg,#0f0f1a,#1a1a2e); border-radius: 10px; padding: 12px 18px; margin-bottom: 6px; border: 1px solid rgba(79,110,247,.2); gap: 10px; }
+.brand { color: #fff; font-size: .85rem; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .brand strong { font-size: .95rem; }
 .sub { color: rgba(255,255,255,.35); font-size: .68rem; margin-left: 6px; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
 .nav { display: flex; align-items: center; gap: 5px; }
 .cur { color: #fff; font-size: .88rem; font-weight: 700; min-width: 140px; text-align: center; }
 .nbtn { background: rgba(255,255,255,.1) !important; color: #fff !important; border: none !important; border-radius: 5px !important; padding: 4px 9px !important; font-size: .8rem !important; cursor: pointer !important; transition: background .15s !important; }
 .nbtn:hover { background: rgba(79,110,247,.4) !important; }
 .today-btn { font-size: .7rem !important; }
+
+/* ── View Toggle ── */
+.view-toggle { display: flex; align-items: center; background: rgba(255,255,255,.07); border-radius: 7px; padding: 3px; gap: 2px; border: 1px solid rgba(255,255,255,.1); flex-shrink: 0; }
+.vtbtn { display: flex; align-items: center; gap: 5px; background: transparent; border: none; color: rgba(255,255,255,.5); font-size: .72rem; font-weight: 600; padding: 4px 9px; border-radius: 5px; cursor: pointer; transition: all .15s; letter-spacing: .3px; }
+.vtbtn:hover { color: rgba(255,255,255,.85); background: rgba(255,255,255,.08); }
+.vtbtn.active { background: rgba(79,110,247,.5); color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); }
 
 /* ── Calendar ── */
 .cal-area { position: relative; background: #fff; border-radius: 8px; border: 1px solid #e2e4ea; overflow: hidden; margin-bottom: 8px; }

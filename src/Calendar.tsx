@@ -105,6 +105,7 @@ export default function Calendar() {
   const [month, setMonth] = useState(now.getMonth());
   const [sel, setSel] = useState<BlockchainEvent | null>(null);
   const [hov, setHov] = useState<string | null>(null);
+  const [view, setView] = useState<'calendar' | 'table'>('calendar');
   const calRef = useRef<HTMLDivElement>(null);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -127,72 +128,108 @@ export default function Calendar() {
       {/* Topbar */}
       <div className="topbar">
         <div className="brand">🌏 <strong>Asia AI · Blockchain Calendar</strong><span className="sub">글로벌 AI · 블록체인 컨퍼런스</span></div>
-        <div className="nav">
-          <button className="nbtn" onClick={() => { if (month===0){setYear(y=>y-1);setMonth(11);}else setMonth(m=>m-1); }}>‹</button>
-          <span className="cur">{MONTHS[month]} {year}</span>
-          <button className="nbtn" onClick={() => { if (month===11){setYear(y=>y+1);setMonth(0);}else setMonth(m=>m+1); }}>›</button>
-          <button className="nbtn today-btn" onClick={() => { setYear(now.getFullYear()); setMonth(now.getMonth()); }}>Today</button>
-        </div>
-      </div>
-
-      {/* Calendar with T-Rex */}
-      <div className="cal-area" ref={calRef}>
-        <TRex areaRef={calRef} />
-        <div className="week-row">{WEEK.map(w => <div key={w} className="wday">{w}</div>)}</div>
-        <div className="grid">
-          {cells.map((day, i) => {
-            if (!day) return <div key={`e${i}`} className="cell empty" />;
-            const dateStr = ds(year, month, day);
-            const isToday = dateStr === todayStr;
-            const dayEvs = getDay(day);
-            return (
-              <div key={dateStr} className={`cell${isToday?' is-today':''}${dayEvs.length?' has-ev':''}`}>
-                <span className="dnum">{day}</span>
-                <div className="ev-list">
-                  {dayEvs.slice(0,3).map(e => (
-                    <div key={e.id} className={`ev-pill${hov===e.id?' hov':''}${e.startDate===dateStr?' start':''}`}
-                      style={{ background: e.color }}
-                      onMouseEnter={() => setHov(e.id)} onMouseLeave={() => setHov(null)}
-                      onClick={() => setSel(e)}>
-                      {e.startDate===dateStr && <span className="ev-lbl">{e.emoji} {e.name}</span>}
-                    </div>
-                  ))}
-                  {dayEvs.length>3 && <div className="ev-more">+{dayEvs.length-3}</div>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Notion-style table */}
-      <div className="notion-table">
-        <div className="nt-header">
-          <div className="nt-col w-em"></div>
-          <div className="nt-col w-name">행사명</div>
-          <div className="nt-col w-loc">장소</div>
-          <div className="nt-col w-date">날짜</div>
-          <div className="nt-col w-att">규모</div>
-          <div className="nt-col w-dday">D-day</div>
-          <div className="nt-col w-tags">태그</div>
-        </div>
-        {allUpcoming.map(e => (
-          <div key={e.id} className={`nt-row${hov===e.id?' nt-hov':''}`}
-            style={{ '--c': e.color } as React.CSSProperties}
-            onMouseEnter={() => setHov(e.id)} onMouseLeave={() => setHov(null)}
-            onClick={() => setSel(e)}>
-            <div className="nt-col w-em"><span>{e.emoji}</span></div>
-            <div className="nt-col w-name"><span className="nt-name">{e.name}</span></div>
-            <div className="nt-col w-loc"><span className="nt-meta">📍 {e.location}</span></div>
-            <div className="nt-col w-date"><span className="nt-meta">{e.startDate.slice(5)} ~ {e.endDate.slice(5)}</span></div>
-            <div className="nt-col w-att"><span className="nt-meta">{e.attendees}</span></div>
-            <div className="nt-col w-dday"><Badge s={e.startDate} /></div>
-            <div className="nt-col w-tags">
-              {e.tags.slice(0,3).map(t => <span key={t} className="nt-tag" style={{ background: `${e.color}18`, color: e.color }}>{t}</span>)}
+        <div className="topbar-right">
+          {view === 'calendar' && (
+            <div className="nav">
+              <button className="nbtn" onClick={() => { if (month===0){setYear(y=>y-1);setMonth(11);}else setMonth(m=>m-1); }}>‹</button>
+              <span className="cur">{MONTHS[month]} {year}</span>
+              <button className="nbtn" onClick={() => { if (month===11){setYear(y=>y+1);setMonth(0);}else setMonth(m=>m+1); }}>›</button>
+              <button className="nbtn today-btn" onClick={() => { setYear(now.getFullYear()); setMonth(now.getMonth()); }}>Today</button>
             </div>
+          )}
+          <div className="view-toggle">
+            <button
+              className={`vtbtn${view === 'calendar' ? ' active' : ''}`}
+              onClick={() => setView('calendar')}
+              title="캘린더 보기"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <rect x="1" y="3" width="14" height="12" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M1 7h14" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <rect x="4" y="9" width="2" height="2" rx=".4"/>
+                <rect x="7" y="9" width="2" height="2" rx=".4"/>
+                <rect x="10" y="9" width="2" height="2" rx=".4"/>
+              </svg>
+              Calendar
+            </button>
+            <button
+              className={`vtbtn${view === 'table' ? ' active' : ''}`}
+              onClick={() => setView('table')}
+              title="테이블 보기"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <rect x="1" y="1" width="14" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M1 5h14M1 9h14M1 13h14M6 1v14M11 1v14" stroke="currentColor" strokeWidth="1" opacity=".6"/>
+              </svg>
+              Table
+            </button>
           </div>
-        ))}
+        </div>
       </div>
+
+      {/* Calendar View */}
+      {view === 'calendar' && (
+        <div className="cal-area" ref={calRef}>
+          <TRex areaRef={calRef} />
+          <div className="week-row">{WEEK.map(w => <div key={w} className="wday">{w}</div>)}</div>
+          <div className="grid">
+            {cells.map((day, i) => {
+              if (!day) return <div key={`e${i}`} className="cell empty" />;
+              const dateStr = ds(year, month, day);
+              const isToday = dateStr === todayStr;
+              const dayEvs = getDay(day);
+              return (
+                <div key={dateStr} className={`cell${isToday?' is-today':''}${dayEvs.length?' has-ev':''}`}>
+                  <span className="dnum">{day}</span>
+                  <div className="ev-list">
+                    {dayEvs.slice(0,3).map(e => (
+                      <div key={e.id} className={`ev-pill${hov===e.id?' hov':''}${e.startDate===dateStr?' start':''}`}
+                        style={{ background: e.color }}
+                        onMouseEnter={() => setHov(e.id)} onMouseLeave={() => setHov(null)}
+                        onClick={() => setSel(e)}>
+                        {e.startDate===dateStr && <span className="ev-lbl">{e.emoji} {e.name}</span>}
+                      </div>
+                    ))}
+                    {dayEvs.length>3 && <div className="ev-more">+{dayEvs.length-3}</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Table View */}
+      {view === 'table' && (
+        <div className="notion-table">
+          <div className="nt-header">
+            <div className="nt-col w-em"></div>
+            <div className="nt-col w-name">행사명</div>
+            <div className="nt-col w-loc">장소</div>
+            <div className="nt-col w-date">날짜</div>
+            <div className="nt-col w-att">규모</div>
+            <div className="nt-col w-dday">D-day</div>
+            <div className="nt-col w-tags">태그</div>
+          </div>
+          {allUpcoming.map(e => (
+            <div key={e.id} className={`nt-row${hov===e.id?' nt-hov':''}`}
+              style={{ '--c': e.color } as React.CSSProperties}
+              onMouseEnter={() => setHov(e.id)} onMouseLeave={() => setHov(null)}
+              onClick={() => setSel(e)}>
+              <div className="nt-col w-em"><span>{e.emoji}</span></div>
+              <div className="nt-col w-name"><span className="nt-name">{e.name}</span></div>
+              <div className="nt-col w-loc"><span className="nt-meta">📍 {e.location}</span></div>
+              <div className="nt-col w-date"><span className="nt-meta">{e.startDate.slice(5)} ~ {e.endDate.slice(5)}</span></div>
+              <div className="nt-col w-att"><span className="nt-meta">{e.attendees}</span></div>
+              <div className="nt-col w-dday"><Badge s={e.startDate} /></div>
+              <div className="nt-col w-tags">
+                {e.tags.slice(0,3).map(t => <span key={t} className="nt-tag" style={{ background: `${e.color}18`, color: e.color }}>{t}</span>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {sel && <Modal ev={sel} onClose={() => setSel(null)} />}
     </div>
